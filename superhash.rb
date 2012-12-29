@@ -1,13 +1,18 @@
 class SuperHash < Hash
 
-  def initialize(array)
-    hash = SuperHash.from_array(array, &yield)
-    super()
-    hash.each_pair{|key, value| self[key]=  value}
+  def initialize(*args, &context)
+    if args && args.first.is_a?(Array) && context
+      super()
+      hash = SuperHash.from_array(args.first, &context)
+      hash.each_pair{|key, value| self[key]=  value}
+    else
+      super()
+    end
   end
 
   def self.from_array(array, &context)
-    array.flatten.inject({}){|h, val| h.update({val => (eval(val.to_s, context))}) }
+    raise "requires context" if context.nil?
+    array.flatten.inject(SuperHash.new){|h, val| h.update({val => (eval(val.to_s, context))}) }
   end
 
 end
@@ -16,12 +21,20 @@ a = 3
 b = 'wow'
 c = 'crazy'
 
-# puts SuperHash.new([:a, :b, :c])
 my_hash = SuperHash.from_array([:a, :b, :c]){}
 puts my_hash.class
 puts my_hash.inspect
 
+# raises as it should
+#my_hash = SuperHash.from_array([:a, :b, :c])
+#puts my_hash.class
+#puts my_hash.inspect
+
 my_hash = SuperHash.new([:a, :b, :c]){}
+puts my_hash.class
+puts my_hash.inspect
+
+my_hash = SuperHash.new([:a, :b, :c])
 puts my_hash.class
 puts my_hash.inspect
 
