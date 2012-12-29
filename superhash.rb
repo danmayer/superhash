@@ -1,7 +1,7 @@
 class SuperHash < Hash
 
-  def initialize(array, &context)
-    hash = SuperHash.from_array(array, &context)
+  def initialize(array)
+    hash = SuperHash.from_array(array, &yield)
     super()
     hash.each_pair{|key, value| self[key]=  value}
   end
