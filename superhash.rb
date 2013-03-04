@@ -5,38 +5,39 @@ class SuperHash < Hash
       super()
       hash = SuperHash.from_array(args.first, &context)
       hash.each_pair{|key, value| self[key]=  value}
+    elsif args && args.first.is_a?(Array) && context.nil?
+      raise "requires context block for binding"
     else
       super()
     end
   end
 
   def self.from_array(array, &context)
-    raise "requires context" if context.nil?
+    raise "requires context block for binding" if context.nil?
     array.flatten.inject(SuperHash.new){|h, val| h.update({val => (eval(val.to_s, context))}) }
   end
 
 end
 
-a = 3
-b = 'wow'
-c = 'crazy'
+calculation = 7
+word        = "a word"
+data        = "more data"
 
-my_hash = SuperHash.from_array([:a, :b, :c]){}
+my_hash = SuperHash.from_array([:calculation, :word, :data]){}
 puts my_hash.class
 puts my_hash.inspect
 
-# raises as it should
-#my_hash = SuperHash.from_array([:a, :b, :c])
-#puts my_hash.class
-#puts my_hash.inspect
-
-my_hash = SuperHash.new([:a, :b, :c]){}
+my_hash = SuperHash.new([:calculation, :word, :data]){}
 puts my_hash.class
 puts my_hash.inspect
 
-my_hash = SuperHash.new([:a, :b, :c])
-puts my_hash.class
-puts my_hash.inspect
+begin
+  my_hash = SuperHash.new([:calculation, :word, :data])
+  puts my_hash.class
+  puts my_hash.inspect
+rescue => err
+  puts err
+end
 
 my_hash = SuperHash.new()
 puts my_hash.class
